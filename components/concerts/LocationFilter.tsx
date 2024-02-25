@@ -26,21 +26,23 @@ const LocationMultiSelect = ({ selectedOptions, setSelectedOptions }: LocationMu
 }
 
 type LocationFilterProps = {
-  value: number[] | null
+  values: number[] | null
   onSubmit: (value: number[]) => void
 }
 
-export const LocationFilter = ({ value, onSubmit }: LocationFilterProps) => {
-  const [selectedIds, setSelectedIds] = useState(value ?? [])
+export const LocationFilter = ({ values: submittedValues, onSubmit }: LocationFilterProps) => {
+  const { data: locations } = useLocations(null, { filter: { ids: submittedValues } })
+  const [selectedIds, setSelectedIds] = useState(submittedValues ?? [])
 
   useEffect(() => {
-    setSelectedIds(value ?? [])
-  }, [value])
+    setSelectedIds(submittedValues ?? [])
+  }, [submittedValues])
   return (
     <FilterButton
-      name="Locations"
-      selectedOptions={selectedIds}
-      count={value?.length ?? 0}
+      label="Locations"
+      items={locations?.data}
+      selectedIds={selectedIds}
+      submittedValues={submittedValues}
       onSubmit={onSubmit}
     >
       <LocationMultiSelect selectedOptions={selectedIds} setSelectedOptions={setSelectedIds} />
