@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react'
 import { FilterButton } from './../FilterButton'
-import { MultiSelect } from './../MultiSelect'
 import { useLocations } from './../../hooks/locations/useLocations'
+import { Select } from '../forms/Select'
 
 type LocationMultiSelectProps = {
-  selectedOptions: number[]
-  setSelectedOptions: (value: number[]) => void
+  values: number[]
+  onValuesChange: (value: number[]) => void
 }
 
-const LocationMultiSelect = ({ selectedOptions, setSelectedOptions }: LocationMultiSelectProps) => {
+const LocationMultiSelect = ({ ...props }: LocationMultiSelectProps) => {
   const { data: locations, isLoading } = useLocations()
   return (
     <div className="relative h-full">
-      <MultiSelect
+      <Select
         name="locations"
-        options={locations?.data}
+        items={locations?.data}
         isLoading={isLoading}
-        selectedOptions={selectedOptions}
-        setSelectedOptions={setSelectedOptions}
-        alwaysOpen
-        fullHeight
+        multiple
+        fixedHeight
+        {...props}
       />
     </div>
   )
@@ -45,7 +44,7 @@ export const LocationFilter = ({ values: submittedValues, onSubmit }: LocationFi
       submittedValues={submittedValues}
       onSubmit={onSubmit}
     >
-      <LocationMultiSelect selectedOptions={selectedIds} setSelectedOptions={setSelectedIds} />
+      <LocationMultiSelect values={selectedIds} onValuesChange={setSelectedIds} />
     </FilterButton>
   )
 }

@@ -7,7 +7,7 @@ import { SearchField } from './SearchField'
 import { Loader2 } from 'lucide-react'
 import clsx from 'clsx'
 
-type MultiSelectProps = {
+export type SelectProps = {
   name: string
   items?: ListItem[]
   isLoading?: boolean
@@ -16,7 +16,7 @@ type MultiSelectProps = {
   | { multiple?: false; value: number | null; onValueChange: (value: number) => void }
   | { multiple: true; values: number[]; onValuesChange: (values: number[]) => void }
 )
-export const Select = ({ name, items, isLoading, fixedHeight, ...props }: MultiSelectProps) => {
+export const Select = ({ name, items, isLoading, fixedHeight, ...props }: SelectProps) => {
   const [query, setQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const regExp = new RegExp(normalizeString(query), 'iu')
