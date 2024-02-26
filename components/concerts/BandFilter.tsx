@@ -12,7 +12,7 @@ const BandMultiSelect = ({ ...props }: BandMultiSelectProps) => {
   const { data: bands, isLoading } = useBands()
   return (
     <Select
-      name="bands"
+      name="band"
       items={bands?.data}
       isLoading={isLoading}
       multiple
@@ -36,7 +36,7 @@ export const BandFilter = ({ values: submittedValues, onSubmit }: BandFilterProp
   }, [submittedValues])
   return (
     <FilterButton
-      label="Bands"
+      label="Band"
       items={bands?.data}
       selectedIds={selectedIds}
       submittedValues={submittedValues}

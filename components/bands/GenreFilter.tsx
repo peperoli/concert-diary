@@ -12,7 +12,7 @@ const GenreMultiSelect = ({ selectedOptions, setSelectedOptions }: GenreMultiSel
   const { data: genres, isLoading } = useGenres()
   return (
     <Select
-      name="Genres"
+      name="Genre"
       items={genres}
       isLoading={isLoading}
       multiple
@@ -37,7 +37,7 @@ export const GenreFilter = ({ values: submittedValues, onSubmit }: GenreFilterPr
   }, [submittedValues])
   return (
     <FilterButton
-      label="Genres"
+      label="Genre"
       items={genres}
       selectedIds={selectedIds}
       submittedValues={submittedValues}

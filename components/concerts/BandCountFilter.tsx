@@ -38,7 +38,7 @@ export const BandCountFilter = ({ values: submittedValues, onSubmit }: BandCount
   }, [submittedValues])
   return (
     <FilterButton
-      label="Bands pro Konzert"
+      label="Anzahl Bands"
       submittedValues={submittedValues}
       selectedIds={selectedIds}
       onSubmit={onSubmit}

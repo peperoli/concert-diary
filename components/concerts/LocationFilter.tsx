@@ -13,7 +13,7 @@ const LocationMultiSelect = ({ ...props }: LocationMultiSelectProps) => {
   return (
     <div className="relative h-full">
       <Select
-        name="locations"
+        name="location"
         items={locations?.data}
         isLoading={isLoading}
         multiple
@@ -38,7 +38,7 @@ export const LocationFilter = ({ values: submittedValues, onSubmit }: LocationFi
   }, [submittedValues])
   return (
     <FilterButton
-      label="Locations"
+      label="Location"
       items={locations?.data}
       selectedIds={selectedIds}
       submittedValues={submittedValues}

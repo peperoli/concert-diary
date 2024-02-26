@@ -13,7 +13,7 @@ const CountryMultiSelect = ({ selectedOptions, setSelectedOptions }: CountryMult
   const regionNames = new Intl.DisplayNames('de', { type: 'region' })
   return (
     <Select
-      name="Länder"
+      name="Land"
       items={countries?.map(item => ({
         id: item.id,
         name: regionNames.of(item.iso2) ?? item.iso2,
@@ -41,7 +41,7 @@ export const CountryFilter = ({ values: submittedValues, onSubmit }: CountryFilt
   }, [submittedValues])
   return (
     <FilterButton
-      label="Länder"
+      label="Land"
       items={countries?.map(country => ({ id: country.id, name: country.iso2 }))}
       selectedIds={selectedIds}
       submittedValues={submittedValues}

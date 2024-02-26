@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import { Select, SelectProps } from './Select'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import { TruncatedList } from 'react-truncate-list'
 import * as Dialog from '@radix-ui/react-dialog'
 import useMediaQuery from '@/hooks/helpers/useMediaQuery'
@@ -17,9 +17,9 @@ export const SelectField = ({ label, items, error, ...props }: SelectFieldProps)
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
   function getLabel() {
-    if (!props.multiple && props.value) {
-      return items?.find(item => item.id === props.value)?.name
-    }
+    if (!items) return <Loader2 className="size-icon animate-spin" />
+
+    if (!props.multiple && props.value) return items?.find(item => item.id === props.value)?.name
 
     if (props.multiple && props.values.length > 0) {
       return (

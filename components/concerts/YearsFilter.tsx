@@ -38,8 +38,8 @@ export const YearsFilter = ({ values: submittedValues, onSubmit }: YearsFilterPr
   }, [submittedValues])
   return (
     <FilterButton
-      label="Jahre"
-      type='range'
+      label="Jahr"
+      type="range"
       selectedIds={selectedOptions}
       submittedValues={submittedValues}
       onSubmit={onSubmit}
