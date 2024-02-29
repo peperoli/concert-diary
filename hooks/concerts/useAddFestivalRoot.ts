@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import supabase from '@/utils/supabase/client'
 import { TablesInsert } from '@/types/supabase'
 
@@ -15,5 +15,9 @@ const addFestivalRoot = async (formData: TablesInsert<'festival_roots'>) => {
 }
 
 export const useAddFestivalRoot = () => {
-  return useMutation(addFestivalRoot, { onError: error => console.error(error) })
+  const queryClient = useQueryClient()
+  return useMutation(addFestivalRoot, {
+    onError: error => console.error(error),
+    onSuccess: () => queryClient.invalidateQueries(['bands']),
+  })
 }

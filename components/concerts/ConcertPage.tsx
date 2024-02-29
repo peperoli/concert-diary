@@ -153,11 +153,12 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
                   {fanProfiles.map(item => {
                     const count = bandCountsPerUser?.get(item.id)
                     return (
-                      <UserItem
-                        user={item}
-                        description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
-                        key={item.id}
-                      />
+                      <Link href={`/users/${item.id}`} className="group/user-item" key={item.id}>
+                        <UserItem
+                          user={item}
+                          description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
+                        />
+                      </Link>
                     )
                   })}
                 </div>
