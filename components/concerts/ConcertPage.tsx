@@ -101,10 +101,16 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
           </div>
           <div className="grid gap-4 rounded-lg bg-slate-800 p-4 md:p-6">
             <div>
-              {concert.name ? (
+              {concert.name || concert.festival_root_id ? (
                 <div>
                   {concert.is_festival && <p>Festival</p>}
-                  <h1>{concert.name}</h1>
+                  <h1>
+                    {concert.festival_root
+                      ? concert.festival_root.name +
+                        ' ' +
+                        new Date(concert.date_start).getFullYear()
+                      : concert.name}
+                  </h1>
                 </div>
               ) : (
                 <h1>

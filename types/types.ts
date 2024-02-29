@@ -38,6 +38,7 @@ export type LocationFetchOptions = {
 }
 
 export type Concert = Database['public']['Tables']['concerts']['Row'] & {
+  festival_root?: { name: string } | null
   location?: Location | null
   bands?: Band[]
   bands_seen?: BandSeen[]

@@ -55,6 +55,7 @@ const fetchConcerts = async (options?: ConcertFetchOptions) => {
     .from('concerts')
     .select(
       `*,
+      festival_root:festival_roots(name),
       location:locations(*),
       bands:j_concert_bands(*, ...bands(*)),
       bands_seen:j_bands_seen(band_id, user_id)`,
