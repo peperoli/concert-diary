@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  ArrowLeftIcon,
-  CalendarIcon,
-  MapPinIcon,
-  PencilSquareIcon,
-  TrashIcon,
-} from '@heroicons/react/20/solid'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useConcert } from '../../hooks/concerts/useConcert'
@@ -19,10 +12,16 @@ import { Comments } from './Comments'
 import { DeleteConcertModal } from './DeleteConcertModal'
 import { EditConcertForm } from './EditConcertForm'
 import { GenreChart } from './GenreChart'
-import { usePathname, useRouter } from 'next/navigation'
+import { notFound, usePathname, useRouter } from 'next/navigation'
 import { useSession } from '../../hooks/auth/useSession'
 import { UserItem } from '../shared/UserItem'
 import { BandList } from './BandList'
+import { ArrowLeft, Calendar, Edit, MapPin, Trash } from 'lucide-react'
+import { useSpotifyArtist } from '@/hooks/spotify/useSpotifyArtist'
+import Image from 'next/image'
+import { ConcertDate } from './ConcertDate'
+import clsx from 'clsx'
+import { useBands } from '@/hooks/bands/useBands'
 
 interface ConcertPageProps {
   initialConcert: Concert
@@ -37,22 +36,15 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
   const { data: profiles } = useProfiles({ ids: [...fanIds] })
   const fanProfiles = profiles?.filter(profile => fanIds?.has(profile.id))
   const { data: session } = useSession()
+  const { data: spotifyArtist } = useSpotifyArtist(concert?.bands?.[0]?.spotify_artist_id)
   const [editIsOpen, setEditIsOpen] = useState(false)
   const [deleteIsOpen, setDeleteIsOpen] = useState(false)
-  const dateFormat: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }
   const { push } = useRouter()
   const pathname = usePathname()
+  const { data: bands } = useBands()
 
   if (!concert) {
-    return (
-      <PageWrapper>
-        <h1>Konzert nicht gefunden</h1>
-      </PageWrapper>
-    )
+    notFound()
   }
 
   function getBandCountsPerUser(bandsSeen: BandSeen[]) {
@@ -73,8 +65,8 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
       <ConcertContext.Provider value={{ concert }}>
         <main className="container grid gap-4">
           <div className="flex items-center justify-between">
-            <Link href={`/${concertQueryState ?? ''}`} className="btn btn-link">
-              <ArrowLeftIcon className="h-icon" />
+            <Link href={`/${concertQueryState ?? ''}`} className="btn btn-small btn-tertiary">
+              <ArrowLeft className="size-icon" />
               Zurück zu Konzerte
             </Link>
             <div className="flex gap-3">
@@ -83,88 +75,100 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
                   session ? () => setEditIsOpen(true) : () => push(`/login?redirect=${pathname}`)
                 }
                 label="Bearbeiten"
-                icon={<PencilSquareIcon className="h-icon" />}
+                icon={<Edit className="size-icon" />}
                 contentType="icon"
                 size="small"
+                appearance="tertiary"
               />
               <Button
                 onClick={
                   session ? () => setDeleteIsOpen(true) : () => push(`/login?redirect=${pathname}`)
                 }
                 label="Löschen"
-                icon={<TrashIcon className="h-icon" />}
+                icon={<Trash className="size-icon" />}
                 contentType="icon"
                 danger
                 size="small"
+                appearance="tertiary"
               />
             </div>
           </div>
-          <div className="grid gap-4 rounded-lg bg-slate-800 p-4 md:p-6">
-            <div>
-              {concert.name || concert.festival_root_id ? (
-                <div>
-                  {concert.is_festival && <p>Festival</p>}
-                  <h1>
-                    {concert.festival_root
-                      ? concert.festival_root.name +
-                        ' ' +
-                        new Date(concert.date_start).getFullYear()
-                      : concert.name}
-                  </h1>
-                </div>
-              ) : (
-                <h1>
-                  {concert.bands && concert.bands[0]?.name} @ {concert.location?.name}
-                </h1>
+          <section
+            className={clsx(
+              'relative rounded-2xl',
+              concert.festival_root_id ? 'aspect-2/1 bg-purple' : 'aspect-4/3 bg-venom'
+            )}
+          >
+            {!concert.festival_root_id && spotifyArtist?.images[0] && (
+              <Image
+                src={spotifyArtist.images[0].url}
+                alt=""
+                fill
+                className="rounded-2xl object-cover"
+              />
+            )}
+            <div
+              className={clsx(
+                'bg-radial-gradient absolute inset-0 rounded-2xl from-transparent to-slate-800',
+                !concert.festival_root_id && spotifyArtist?.images[0] && 'via-transparent'
               )}
-              {concert.bands && (
-                <BandList
-                  bands={concert.bands}
-                  bandsSeen={concert.bands_seen?.filter(item => item.user_id === session?.user.id)}
-                  concertId={concert.id}
-                />
-              )}
-            </div>
-            <div className="mt-4 grid gap-4">
-              <div className="flex items-center gap-4">
-                <CalendarIcon className="h-icon text-slate-300" />
-                <div>
-                  <span>
-                    {new Date(concert.date_start).toLocaleDateString('de-CH', dateFormat)}
-                    {concert.date_end && concert.is_festival && <>&nbsp;&ndash; </>}
-                  </span>
-                  {concert.date_end && concert.is_festival && (
-                    <span>
-                      {new Date(concert.date_end).toLocaleDateString('de-CH', dateFormat)}
-                    </span>
-                  )}
-                </div>
+            />
+            <div className="relative grid size-full content-end justify-start p-8">
+              <div className="mb-4 flex w-fit items-center">
+                <ConcertDate date={new Date(concert.date_start)} isFirst contrast />
+                {concert.date_end && concert.date_end !== concert.date_start && (
+                  <>
+                    <div className="w-2 border-t border-slate-50/20 md:w-4" />
+                    <ConcertDate date={new Date(concert.date_end)} contrast />
+                  </>
+                )}
               </div>
-              {concert.location && (
-                <div className="flex items-center gap-4">
-                  <MapPinIcon className="h-icon text-slate-300" />
-                  <div>
-                    {concert.location.name}, {concert.location.city}
-                  </div>
-                </div>
-              )}
-              {fanProfiles && fanProfiles.length > 0 && (
-                <div className="flex flex-wrap gap-4">
-                  {fanProfiles.map(item => {
-                    const count = bandCountsPerUser?.get(item.id)
-                    return (
-                      <Link href={`/users/${item.id}`} className="group/user-item" key={item.id}>
-                        <UserItem
-                          user={item}
-                          description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
-                        />
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
+              {concert.is_festival && <p className="text-sm font-bold">Festival</p>}
+              <h1 className="mb-2">{concert.bands?.[0]?.name}</h1>
+              <p className="h2 mb-0 flex items-center gap-3">
+                <MapPin className="size-icon" />
+                {concert.location?.name}, {concert.location?.city}
+              </p>
             </div>
-          </div>
+          </section>
+          <section className="rounded-lg bg-slate-800 p-4 md:p-6">
+            <h2>Lineup</h2>
+            {concert.bands && (
+              <BandList
+                bands={concert.bands}
+                bandsSeen={concert.bands_seen?.filter(item => item.user_id === session?.user.id)}
+                concertId={concert.id}
+              />
+            )}
+          </section>
+          {fanProfiles && fanProfiles.length > 0 && (
+            <section className="rounded-lg bg-slate-800 p-4 md:p-6">
+              <h2>Fans</h2>
+              <div className="flex flex-wrap gap-4">
+                {fanProfiles.map(item => {
+                  const count = bandCountsPerUser?.get(item.id)
+                  return (
+                    <Link
+                      href={`/users/${item.username}`}
+                      className="group/user-item"
+                      key={item.id}
+                    >
+                      <UserItem
+                        user={item}
+                        description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
+                      />
+                      <ul>
+                        {concert.bands_seen
+                          ?.filter(band => band.user_id === item.id)
+                          .sort((a,b) => a.band_id - b.band_id)
+                          .map(band => <li key={band.band_id}>{bands?.data.find(band2 => band2.id === band.band_id)?.name || band.band_id}</li>)}
+                      </ul>
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
+          )}
           {concert.bands && (
             <div className="rounded-lg bg-slate-800 p-4 md:p-6">
               <GenreChart bands={concert.bands} />

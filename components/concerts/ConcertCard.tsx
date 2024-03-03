@@ -8,29 +8,7 @@ import clsx from 'clsx'
 import useMediaQuery from '../../hooks/helpers/useMediaQuery'
 import { UserItem } from '../shared/UserItem'
 import { useState } from 'react'
-
-type ConcertDateProps = {
-  date: Date
-  isFirst?: boolean
-}
-
-const ConcertDate = ({ date, isFirst }: ConcertDateProps) => {
-  const isCurrentYear = date.getFullYear() === new Date().getFullYear()
-  return (
-    <div
-      className={clsx(
-        'relative flex aspect-square w-16 flex-none flex-col items-center justify-center rounded-lg border border-slate-700 transition duration-200',
-        clsx(isFirst && 'bg-slate-700 group-hover:bg-slate-600')
-      )}
-    >
-      <div className={clsx('flex items-center', isCurrentYear ? 'flex-col' : 'gap-1')}>
-        <span className="font-bold">{date.toLocaleDateString('de-CH', { day: 'numeric' })}</span>
-        <span className="text-sm">{date.toLocaleDateString('de-CH', { month: 'short' })}</span>
-      </div>
-      {!isCurrentYear && <span className="text-sm">{date.getFullYear()}</span>}
-    </div>
-  )
-}
+import { ConcertDate } from './ConcertDate'
 
 interface ConcertCardProps {
   concert: Concert
@@ -92,7 +70,7 @@ export const ConcertCard = ({ concert }: ConcertCardProps) => {
                   href={`/bands/${band.id}`}
                   onClick={event => event.stopPropagation()}
                   className={clsx(
-                    'hover:underline',
+                    'font-bold hover:underline',
                     bandsSeen?.find(bandSeen => band.id === bandSeen.band_id) && 'text-venom'
                   )}
                 >
