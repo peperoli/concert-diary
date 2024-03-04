@@ -11,7 +11,6 @@ import { PageWrapper } from '../layout/PageWrapper'
 import { Comments } from './Comments'
 import { DeleteConcertModal } from './DeleteConcertModal'
 import { EditConcertForm } from './EditConcertForm'
-import { GenreChart } from './GenreChart'
 import { notFound, usePathname, useRouter } from 'next/navigation'
 import { useSession } from '../../hooks/auth/useSession'
 import { UserItem } from '../shared/UserItem'
@@ -23,6 +22,7 @@ import { ConcertDate } from './ConcertDate'
 import clsx from 'clsx'
 import { useBands } from '@/hooks/bands/useBands'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { ConcertStats } from './ConcertStats'
 
 type ConcertUserItemProps = {
   concert: Concert
@@ -181,9 +181,7 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
             </section>
           )}
           {concert.bands && (
-            <div className="rounded-lg bg-slate-800 p-4 md:p-6">
-              <GenreChart bands={concert.bands} />
-            </div>
+            <ConcertStats bands={concert.bands} />
           )}
           <div className="rounded-lg bg-slate-800 p-4 md:p-6">
             <Comments />

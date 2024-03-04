@@ -57,7 +57,7 @@ export const ConcertCard = ({ concert }: ConcertCardProps) => {
       </div>
       <div>
         {(concert.festival_root || concert.name) && (
-          <div className={clsx("mb-2 w-fit rounded-full px-3 py-1 border-2 text-sm font-bold", concert.festival_root ? 'border-purple text-purple' : 'border-blue text-blue')}>
+          <div className={clsx("mb-2 w-fit rounded-md px-2 py-1 border-2 text-sm font-bold", concert.festival_root ? 'border-purple/50 text-purple' : 'border-blue/50 text-blue')}>
             {concert.festival_root ? concert.festival_root.name + ' ' + new Date(concert.date_start).getFullYear() :
               concert.name}
           </div>
