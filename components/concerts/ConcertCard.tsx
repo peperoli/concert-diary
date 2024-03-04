@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { MapPinIcon } from '@heroicons/react/20/solid'
 import { useRouter } from 'next/navigation'
 import { Concert } from '../../types/types'
 import { useProfiles } from '../../hooks/profiles/useProfiles'
@@ -9,6 +8,7 @@ import useMediaQuery from '../../hooks/helpers/useMediaQuery'
 import { UserItem } from '../shared/UserItem'
 import { useState } from 'react'
 import { ConcertDate } from './ConcertDate'
+import { MapPin } from 'lucide-react'
 
 interface ConcertCardProps {
   concert: Concert
@@ -94,8 +94,8 @@ export const ConcertCard = ({ concert }: ConcertCardProps) => {
           )}
         </div>
         <div className="mb-2 flex w-full gap-4">
-          <div className="inline-flex items-center text-sm">
-            <MapPinIcon className="mr-2 h-icon text-slate-300" />
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="size-icon text-slate-300" />
             {concert.location?.name}
           </div>
         </div>

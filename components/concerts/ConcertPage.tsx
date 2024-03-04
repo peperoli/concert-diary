@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useConcert } from '../../hooks/concerts/useConcert'
 import { ConcertContext } from '../../hooks/concerts/useConcertContext'
 import { useProfiles } from '../../hooks/profiles/useProfiles'
-import { BandSeen, Concert } from '../../types/types'
+import { BandSeen, Concert, Profile } from '../../types/types'
 import { Button } from '../Button'
 import { PageWrapper } from '../layout/PageWrapper'
 import { Comments } from './Comments'
@@ -16,14 +16,57 @@ import { notFound, usePathname, useRouter } from 'next/navigation'
 import { useSession } from '../../hooks/auth/useSession'
 import { UserItem } from '../shared/UserItem'
 import { BandList } from './BandList'
-import { ArrowLeft, Calendar, Edit, MapPin, Trash } from 'lucide-react'
+import { ArrowLeft, Edit, MapPin, Trash } from 'lucide-react'
 import { useSpotifyArtist } from '@/hooks/spotify/useSpotifyArtist'
 import Image from 'next/image'
 import { ConcertDate } from './ConcertDate'
 import clsx from 'clsx'
 import { useBands } from '@/hooks/bands/useBands'
+import * as Tooltip from '@radix-ui/react-tooltip'
 
-interface ConcertPageProps {
+type ConcertUserItemProps = {
+  concert: Concert
+  user: Profile
+}
+
+const ConcertUserItem = ({ concert, user }: ConcertUserItemProps) => {
+  const { data: bands } = useBands(null, {
+    ids: concert.bands_seen?.filter(item => item.user_id === user.id).map(item => item.band_id),
+  })
+
+  function getBandCountsPerUser(bandsSeen: BandSeen[]) {
+    const counts = new Map<string, number>()
+    bandsSeen.forEach(item => {
+      if (counts.has(item.user_id)) {
+        counts.set(item.user_id, counts.get(item.user_id)! + 1)
+      } else {
+        counts.set(item.user_id, 1)
+      }
+    })
+    return counts
+  }
+
+  const bandCountsPerUser = concert.bands_seen && getBandCountsPerUser(concert.bands_seen)
+  const count = bandCountsPerUser?.get(user.id)
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>
+        <Link href={`/users/${user.username}`} className="group/user-item" key={user.id}>
+          <UserItem
+            user={user}
+            description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
+          />
+        </Link>
+      </Tooltip.Trigger>
+      <Tooltip.Content className="z-10 rounded-lg border border-slate-800 bg-slate-850 p-2 text-sm shadow-lg">
+        <Tooltip.Arrow className="fill-slate-850" />
+        <ul>{bands?.data.map(item => <li key={item.id}>{item.name}</li>)}</ul>
+      </Tooltip.Content>
+    </Tooltip.Root>
+  )
+}
+
+type ConcertPageProps = {
   initialConcert: Concert
   concertQueryState?: string
 }
@@ -41,24 +84,10 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
   const [deleteIsOpen, setDeleteIsOpen] = useState(false)
   const { push } = useRouter()
   const pathname = usePathname()
-  const { data: bands } = useBands()
 
   if (!concert) {
     notFound()
   }
-
-  function getBandCountsPerUser(bandsSeen: BandSeen[]) {
-    const counts = new Map<string, number>()
-    bandsSeen.forEach(item => {
-      if (counts.has(item.user_id)) {
-        counts.set(item.user_id, counts.get(item.user_id)! + 1)
-      } else {
-        counts.set(item.user_id, 1)
-      }
-    })
-    return counts
-  }
-  const bandCountsPerUser = concert.bands_seen && getBandCountsPerUser(concert.bands_seen)
 
   return (
     <PageWrapper>
@@ -109,11 +138,11 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
             )}
             <div
               className={clsx(
-                'bg-radial-gradient absolute inset-0 rounded-2xl from-transparent to-slate-800',
+                'absolute inset-0 rounded-2xl bg-radial-gradient from-transparent to-slate-800',
                 !concert.festival_root_id && spotifyArtist?.images[0] && 'via-transparent'
               )}
             />
-            <div className="relative grid size-full content-end justify-start p-8">
+            <div className="relative grid size-full content-end justify-start p-4 md:p-6">
               <div className="mb-4 flex w-fit items-center">
                 <ConcertDate date={new Date(concert.date_start)} isFirst contrast />
                 {concert.date_end && concert.date_end !== concert.date_start && (
@@ -145,27 +174,9 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
             <section className="rounded-lg bg-slate-800 p-4 md:p-6">
               <h2>Fans</h2>
               <div className="flex flex-wrap gap-4">
-                {fanProfiles.map(item => {
-                  const count = bandCountsPerUser?.get(item.id)
-                  return (
-                    <Link
-                      href={`/users/${item.username}`}
-                      className="group/user-item"
-                      key={item.id}
-                    >
-                      <UserItem
-                        user={item}
-                        description={count ? `${count} Band${count > 1 ? 's' : ''}` : null}
-                      />
-                      <ul>
-                        {concert.bands_seen
-                          ?.filter(band => band.user_id === item.id)
-                          .sort((a,b) => a.band_id - b.band_id)
-                          .map(band => <li key={band.band_id}>{bands?.data.find(band2 => band2.id === band.band_id)?.name || band.band_id}</li>)}
-                      </ul>
-                    </Link>
-                  )
-                })}
+                {fanProfiles.map(item => (
+                  <ConcertUserItem concert={concert} user={item} key={item.id} />
+                ))}
               </div>
             </section>
           )}
