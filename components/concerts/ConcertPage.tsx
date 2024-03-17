@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
 import { useConcert } from '../../hooks/concerts/useConcert'
 import { ConcertContext } from '../../hooks/concerts/useConcertContext'
 import { useProfiles } from '../../hooks/profiles/useProfiles'
@@ -84,7 +83,6 @@ export const ConcertPage = ({ initialConcert, concertQueryState }: ConcertPagePr
     'modal',
     parseAsStringLiteral(modalPaths).withOptions({ history: 'push' })
   )
-  const [deleteIsOpen, setDeleteIsOpen] = useState(false)
   const { push } = useRouter()
   const pathname = usePathname()
 
