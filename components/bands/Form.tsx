@@ -119,8 +119,7 @@ export const Form = ({ isNew, close }: FormProps) => {
       <Disclosure>
         <Disclosure.Panel>
           <TextField
-            {...register('youtube_url', { required: true })}
-            error={errors.youtube_url}
+            {...register('youtube_url')}
             label="YouTube-Kanal"
             placeholder="https://youtube.com/channel/UC4BSeEq7XNtihGqI309vhYg"
           />

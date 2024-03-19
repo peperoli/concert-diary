@@ -12,22 +12,26 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from '../../hooks/auth/useSession'
 import { parseAsStringLiteral, useQueryState } from 'nuqs'
 import { modalPaths } from '../shared/ModalProvider'
-import { ArrowLeft, Edit, MapPin, MusicIcon, Trash, Youtube } from 'lucide-react'
+import { ArrowLeft, Edit, MapPin, MusicIcon, Trash } from 'lucide-react'
 import Image from 'next/image'
 import { useSpotifyArtist } from '@/hooks/spotify/useSpotifyArtist'
+import { UserItem } from '../shared/UserItem'
+import { useBandProfiles } from '@/hooks/bands/useBandProfiles'
+import { UserMusicIcon } from '../layout/UserMusicIcon'
 
-export interface BandPageProps {
+type BandPageProps = {
   initialBand: Band
   bandQueryState?: string
 }
 
 export const BandPage = ({ initialBand, bandQueryState }: BandPageProps) => {
   const { data: band, isLoading: bandIsLoading } = useBand(initialBand.id, initialBand)
+  const { data: spotifyArtist } = useSpotifyArtist(band?.spotify_artist_id)
+  const { data: bandProfiles } = useBandProfiles(initialBand.id)
   const { data: concerts } = useConcerts(undefined, {
     bands: [initialBand.id],
     sort: { sort_by: 'date_start', sort_asc: false },
   })
-  const { data: spotifyArtist } = useSpotifyArtist(band?.spotify_artist_id)
   const [_, setModal] = useQueryState(
     'modal',
     parseAsStringLiteral(modalPaths).withOptions({ history: 'push' })
@@ -85,26 +89,28 @@ export const BandPage = ({ initialBand, bandQueryState }: BandPageProps) => {
           </div>
         </div>
         <section className="flex gap-5 rounded-2xl bg-radial-gradient from-blue/20 p-6">
-          <div className="relative size-56">
-            {spotifyArtist?.images[0] && (
+          <div className="relative grid place-content-center size-56 rounded-lg bg-slate-750">
+            {spotifyArtist?.images[0] ? (
               <Image
                 src={spotifyArtist.images[0].url}
                 alt={band.name}
                 fill
                 className="rounded-lg object-cover"
               />
+            ) : (
+              <UserMusicIcon className="size-12 text-slate-300" />
             )}
           </div>
           <div>
             <h1>{band.name}</h1>
             {band.country && (
               <div className="mb-2 flex items-center gap-4">
-                <MapPin className="h-icon text-slate-300" />
+                <MapPin className="size-icon flex-none text-slate-300" />
                 {regionNames.of(band.country.iso2)}
               </div>
             )}
             <div className="mb-5 flex items-center gap-4">
-              <MusicIcon className="h-icon text-slate-300" />
+              <MusicIcon className="size-icon flex-none text-slate-300" />
               <ul className="flex flex-wrap gap-x-2">
                 {band.genres &&
                   band.genres.map((genre, index) => (
@@ -137,11 +143,32 @@ export const BandPage = ({ initialBand, bandQueryState }: BandPageProps) => {
             </div>
           </div>
         </section>
+        {bandProfiles && bandProfiles.length > 0 && (
+          <section className="rounded-lg bg-slate-800 p-4 md:p-6">
+            <h2>Community</h2>
+            <div className="flex flex-wrap gap-4">
+              {bandProfiles
+                .sort((a, b) => b.count - a.count)
+                .map(item => (
+                  <Link
+                    href={`/users/${item.profile.username}`}
+                    className="group/user-item"
+                    key={item.profile.id}
+                  >
+                    <UserItem
+                      user={item.profile}
+                      description={`${item.count} Konzert${item.count > 1 ? 'e' : ''}`}
+                    />
+                  </Link>
+                ))}
+            </div>
+          </section>
+        )}
         {concerts?.data && concerts?.data?.length > 0 && (
-          <div className="grid gap-4 p-6">
-            <h2 className="mb-0 text-slate-300">Konzerte mit {band.name}</h2>
-            {concerts?.data.map(item => <ConcertCard key={item.id} concert={item} />)}
-          </div>
+          <section className="grid gap-4 rounded-lg bg-slate-800 p-4 md:p-6">
+            <h2 className="mb-0">Konzerte mit {band.name}</h2>
+            {concerts?.data.map(item => <ConcertCard key={item.id} concert={item} nested />)}
+          </section>
         )}
       </main>
     </PageWrapper>
